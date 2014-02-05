@@ -4,6 +4,8 @@
 Creating HAL documents.
 """
 
+from collections import OrderedDict
+
 from dougrain import drafts
 from dougrain import link
 
@@ -11,6 +13,9 @@ try:
     _ = unicode
 except NameError:
     unicode = str
+
+def _sorted_kwargs(kwargs):
+    return [(k,kwargs[k]) for k in sorted(kwargs.keys())]
 
 
 class Builder(object):
@@ -48,7 +53,8 @@ class Builder(object):
         ``
 
         """
-        self.o = {'_links': {'self': dict(href=href, **kwargs)}}
+        self.o = o = OrderedDict([('_links', OrderedDict([]))])
+        o['_links']['self'] = OrderedDict([('href', href)] + _sorted_kwargs(kwargs))
         self.draft = draft.draft
 
     def url(self):
@@ -143,10 +149,10 @@ class Builder(object):
         if isinstance(target, bytes):
             target = target.decode('utf-8')
         if isinstance(target, str) or isinstance(target, unicode):
-            new_link = dict(href=target, **kwargs)
+            href = target
         else:
-            new_link = dict(href=target.url(), **kwargs)
-
+            href = target.url()
+        new_link = OrderedDict([('href', href)] + _sorted_kwargs(kwargs))
         self._add_rel('_links', rel, new_link, wrap)
         return self
 
@@ -195,7 +201,7 @@ class Builder(object):
         ``embed`` or ``add_link`` instead.
 
         """
-        self.o.setdefault(key, {})
+        self.o.setdefault(key, OrderedDict([]))
 
         if wrap:
             self.o[key].setdefault(rel, [])
