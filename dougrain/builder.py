@@ -53,7 +53,7 @@ class Builder(object):
         ``
 
         """
-        self.o = o = OrderedDict([('_links', OrderedDict([]))])
+        self.o = o = OrderedDict([('_links', OrderedDict())])
         o['_links']['self'] = OrderedDict([('href', href)] + _sorted_kwargs(kwargs))
         self.draft = draft.draft
 
@@ -201,7 +201,7 @@ class Builder(object):
         ``embed`` or ``add_link`` instead.
 
         """
-        self.o.setdefault(key, OrderedDict([]))
+        self.o.setdefault(key, OrderedDict())
 
         if wrap:
             self.o[key].setdefault(rel, [])
