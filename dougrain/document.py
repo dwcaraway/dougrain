@@ -23,6 +23,7 @@ from .drafts import AUTO
 from .drafts import LINKS_KEY
 from .drafts import EMBEDDED_KEY
 
+import simplejson as json
 
 class CanonicalRels(Mapping, object):
     """Smart querying of link relationship types and link relationships.
@@ -584,6 +585,35 @@ class Document(object):
                     for x in o]
 
         return cls(o, base_uri, parent_curies, draft)
+
+    @classmethod
+    def from_string(cls, o, base_uri=None, parent_curies=None, draft=AUTO):
+        """
+        Returns a new ``Document`` based on a JSON formatted string or array
+        of serialized JSON strings.
+
+        Arguments:
+
+        - ``o``: a dictionary holding the deserializated JSON for the new
+                 ``Document``, or a ``list`` of such documents.
+        - ``base_uri``: optional URL used as the basis when expanding
+                               relative URLs in the document.
+        - ``parent_curies``: optional ``CurieCollection`` instance holding the
+                             CURIEs of the parent document in which the new
+                             document is to be embedded. Calling code should
+                             not normally provide this argument.
+        - ``draft``: a ``Draft`` instance that selects the version of the spec
+                     to which the document should conform. Defaults to
+                     ``drafts.AUTO``.
+        """
+
+
+        if isinstance(o, list):
+            rv = [json.loads(x) for x in o]
+        else:
+            rv = json.loads(o)
+
+        return cls.from_object(o=rv, base_uri=base_uri, parent_curies=parent_curies, draft=draft)
 
     @classmethod
     def empty(cls, base_uri=None, draft=AUTO):
